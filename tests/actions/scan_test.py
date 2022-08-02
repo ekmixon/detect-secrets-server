@@ -216,35 +216,21 @@ def get_subprocess_mocks(secrets, updates_repo):
         secrets_dict = secrets.json()
         filenames = list(secrets_dict.keys())
 
-        subprocess_mocks.append(
-            # First, we get the main branch
-            SubprocessMock(
-                expected_input='git rev-parse --abbrev-ref HEAD',
-                mocked_output='master',
-            ),
-        )
-
-        subprocess_mocks.append(
-            # then, we get the blame info for that branch
-            SubprocessMock(
-                expected_input=(
-                    'git blame master -L {},{} --show-email '
-                    '--line-porcelain -- {}'.format(
-                        secrets_dict[filenames[0]][0]['line_number'],
-                        secrets_dict[filenames[0]][0]['line_number'],
-                        filenames[0],
-                    )
+        subprocess_mocks.extend(
+            (
+                SubprocessMock(
+                    expected_input='git rev-parse --abbrev-ref HEAD',
+                    mocked_output='master',
                 ),
-                mocked_output=mock_blame_info(),
-            ),
-        )
-
-        subprocess_mocks.append(
-            # and get the current HEAD.
-            SubprocessMock(
-                expected_input='git rev-parse HEAD',
-                mocked_output='new_sha',
-            ),
+                SubprocessMock(
+                    expected_input=f"git blame master -L {secrets_dict[filenames[0]][0]['line_number']},{secrets_dict[filenames[0]][0]['line_number']} --show-email --line-porcelain -- {filenames[0]}",
+                    mocked_output=mock_blame_info(),
+                ),
+                SubprocessMock(
+                    expected_input='git rev-parse HEAD',
+                    mocked_output='new_sha',
+                ),
+            )
         )
 
     if updates_repo:

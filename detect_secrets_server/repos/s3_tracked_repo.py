@@ -95,15 +95,10 @@ class S3TrackedRepo(BaseTrackedRepo):
 
         return output
 
-    def cron(self):     # pragma: no cover
+    def cron(self): # pragma: no cover
         # TODO: deprecate this
         output = super(S3TrackedRepo, self).cron()
-        return '{} --s3-credentials-file {} --s3-bucket {} --s3-prefix {}'.format(
-            output,
-            self.s3_config['credentials_filename'],
-            self.s3_config['bucket'],
-            self.s3_config['prefix'],
-        )
+        return f"{output} --s3-credentials-file {self.s3_config['credentials_filename']} --s3-bucket {self.s3_config['bucket']} --s3-prefix {self.s3_config['prefix']}"
 
     def save(self, override_level=OverrideLevel.ASK_USER):
         success = super(S3TrackedRepo, self).save(override_level)

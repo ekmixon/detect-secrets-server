@@ -129,9 +129,7 @@ class BaseStorage(object):
         except FileNotFoundError:
             first_line = ''
 
-        alert['info'] = 'first_line of logs/HEAD is {}'.format(
-            str(first_line),
-        )
+        alert['info'] = f'first_line of logs/HEAD is {first_line}'
         return alert
 
     def get_last_commit_hash(self):
@@ -166,10 +164,7 @@ class BaseStorage(object):
             components = urlparse.urlparse(url)
             name = components.path.lstrip('/')
 
-        if name.endswith('.git'):
-            return name[:-4]
-
-        return name
+        return name[:-4] if name.endswith('.git') else name
 
     def _initialize_git_repos_directory(self):
         git_repos_root = os.path.join(self.root, 'repos')
@@ -239,10 +234,7 @@ class LocalGitRepository(BaseStorage):
         Unless it is a local bare repo.
         """
         inner_git_dir = os.path.join(self.repo_url, '.git')
-        if os.path.exists(inner_git_dir):
-            return inner_git_dir
-        # Bare repo
-        return self.repo_url
+        return inner_git_dir if os.path.exists(inner_git_dir) else self.repo_url
 
 
 def get_filepath_safe(prefix, file):

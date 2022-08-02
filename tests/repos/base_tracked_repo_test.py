@@ -31,11 +31,9 @@ class TestLoadFromFile(object):
         repo = mock_logic(mock_open)
 
         mock_open.assert_called_with(
-            '{}/tracked/{}.json'.format(
-                mock_rootdir,
-                FileStorage.hash_filename('will_be_mocked'),
-            )
+            f"{mock_rootdir}/tracked/{FileStorage.hash_filename('will_be_mocked')}.json"
         )
+
 
         assert repo.last_commit_hash == 'sha256-hash'
         assert repo.repo == 'git@github.com:yelp/detect-secrets'
@@ -315,12 +313,10 @@ class TestSave(object):
 
 def assert_writes_accurately(mock_open, mock_rootdir):
     mock_open.assert_called_with(
-        '{}/tracked/{}.json'.format(
-            mock_rootdir,
-            FileStorage.hash_filename('yelp/detect-secrets'),
-        ),
+        f"{mock_rootdir}/tracked/{FileStorage.hash_filename('yelp/detect-secrets')}.json",
         'w',
     )
+
     mock_open().write.assert_called_with(
         metadata_factory(
             'git@github.com:yelp/detect-secrets',

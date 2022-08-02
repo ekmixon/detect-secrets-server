@@ -17,13 +17,8 @@ setup(
     author='Aaron Loo',
     author_email='aaronloo@yelp.com',
     url='https://github.com/Yelp/detect-secrets-server',
-    download_url='https://github.com/Yelp/detect-secrets-server/archive/{}.tar.gz'.format(detect_secrets_server.__version__),
-    keywords=[
-        'secret-management',
-        'pre-commit',
-        'security',
-        'entropy-checks'
-    ],
+    download_url=f'https://github.com/Yelp/detect-secrets-server/archive/{detect_secrets_server.__version__}.tar.gz',
+    keywords=['secret-management', 'pre-commit', 'security', 'entropy-checks'],
     install_requires=[
         'detect-secrets==0.13.1',
         'pyyaml',
@@ -48,5 +43,5 @@ setup(
         "Environment :: Console",
         "Operating System :: OS Independent",
         "Development Status :: 5 - Production/Stable",
-    ]
+    ],
 )

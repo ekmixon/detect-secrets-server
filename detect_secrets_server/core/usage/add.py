@@ -155,16 +155,14 @@ def _consolidate_config_file_plugin_options(args):
             plugin.disable_flag_text,
         )
 
-        is_disabled = getattr(args, arg_name)
-        if is_disabled:
+        if is_disabled := getattr(args, arg_name):
             disabled_plugins.append(plugin.classname)
             continue
 
         specified_values = {}
         for arg in plugin.related_args:
             arg_name = PluginOptions._convert_flag_text_to_argument_name(arg[0])
-            specified_value = getattr(args, arg_name)
-            if specified_value:
+            if specified_value := getattr(args, arg_name):
                 specified_values[arg_name] = specified_value
 
         if specified_values:

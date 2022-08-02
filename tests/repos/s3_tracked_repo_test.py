@@ -15,16 +15,11 @@ class TestS3TrackedRepo(object):
         with mock_logic() as (client, repo):
             assert repo.s3_config == mock_s3_config()
 
-            filename = '{}.json'.format(
-                repo.storage.hash_filename('mocked_repository_name'),
-            )
+            filename = f"{repo.storage.hash_filename('mocked_repository_name')}.json"
             client.download_file.assert_called_with(
                 Bucket='pail',
-                Key='prefix/{}'.format(filename),
-                Filename='{}/tracked/{}'.format(
-                    mock_rootdir,
-                    filename,
-                ),
+                Key=f'prefix/{filename}',
+                Filename=f'{mock_rootdir}/tracked/{filename}',
             )
 
     @pytest.mark.parametrize(
@@ -48,9 +43,7 @@ class TestS3TrackedRepo(object):
         should_upload,
     ):
         with mock_logic() as (client, repo):
-            filename = 'prefix/{}.json'.format(
-                repo.storage.hash_filename('yelp/detect-secrets')
-            )
+            filename = f"prefix/{repo.storage.hash_filename('yelp/detect-secrets')}.json"
 
             mock_list_objects_return_value = {}
             if is_file_uploaded:
@@ -64,7 +57,7 @@ class TestS3TrackedRepo(object):
                 }
 
             client.list_objects_v2.return_value = \
-                mock_list_objects_return_value
+                    mock_list_objects_return_value
 
             repo.save(override_level)
 

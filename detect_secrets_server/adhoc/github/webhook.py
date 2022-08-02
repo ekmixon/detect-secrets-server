@@ -58,13 +58,13 @@ def scan_for_secrets(event_type, body, *args):
             *args,
         ])
 
-    has_results = any([
+    has_results = any(
         line
         for line in f.getvalue().splitlines()
-
         # NOTE: Expected format: '<DetectorName>: [True/False]'
         if 'True' in line.split(':')[1]
-    ])
+    )
+
 
     return attribution_link if has_results else None
 

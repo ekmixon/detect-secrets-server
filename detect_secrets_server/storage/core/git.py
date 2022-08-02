@@ -62,10 +62,7 @@ def fetch_new_changes(directory):
         'fetch',
         '--quiet',
         'origin',
-        '{}:{}'.format(
-            main_branch,
-            main_branch,
-        ),
+        f'{main_branch}:{main_branch}',
         '--force',
     )
 
@@ -80,10 +77,7 @@ def get_baseline_file(directory, filename):
     :returns: file contents of baseline_file
     """
     try:
-        return _git(
-            directory,
-            'show', 'HEAD:{}'.format(filename),
-        )
+        return _git(directory, 'show', f'HEAD:{filename}')
 
     except subprocess.CalledProcessError as e:
         error_message = e.output.decode('utf-8')
@@ -118,10 +112,9 @@ def get_diff(directory, last_commit_hash, files=None):
         'HEAD',
     ]
 
-    if not files:
-        filenames_to_include_in_diff = _filter_filenames_from_diff(directory, last_commit_hash)
-    else:
-        filenames_to_include_in_diff = files
+    filenames_to_include_in_diff = files or _filter_filenames_from_diff(
+        directory, last_commit_hash
+    )
 
     if (
         filenames_to_include_in_diff
@@ -166,7 +159,8 @@ def get_blame(directory, filename, line_number):
         directory,
         'blame',
         _get_main_branch(directory),
-        '-L', '{},{}'.format(line_number, line_number),
+        '-L',
+        f'{line_number},{line_number}',
         '--show-email',
         '--line-porcelain',
         '--',
@@ -212,9 +206,7 @@ def _git(directory, *args, **kwargs):
         ).decode('utf-8', errors='ignore')
 
         # This is to fix https://github.com/matiasb/python-unidiff/issues/54
-        if not kwargs.get('should_strip_output', True):
-            return output
-        return output.strip()
+        return output.strip() if kwargs.get('should_strip_output', True) else output
     except subprocess.CalledProcessError as e:
         error_message = e.output.decode('utf-8')
 

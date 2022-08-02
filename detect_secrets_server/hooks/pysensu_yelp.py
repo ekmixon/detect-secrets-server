@@ -41,5 +41,5 @@ class PySensuYelpHook(BaseHook):
         self.config_data = yaml.safe_load(config)
 
     def alert(self, repo_name, secrets):
-        self.config_data['output'] = "In repo " + repo_name + "\n" + str(secrets)
+        self.config_data['output'] = f"In repo {repo_name}" + "\n" + str(secrets)
         pysensu_yelp.send_event(**self.config_data)

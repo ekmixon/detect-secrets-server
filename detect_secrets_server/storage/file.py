@@ -42,10 +42,7 @@ class FileStorage(BaseStorage):
             f.write(json.dumps(value, indent=2, sort_keys=True))
 
     def get_tracked_file_location(self, key):
-        return get_filepath_safe(
-            os.path.join(self.root, 'tracked'),
-            '{}.json'.format(key),
-        )
+        return get_filepath_safe(os.path.join(self.root, 'tracked'), f'{key}.json')
 
     def get_tracked_repositories(self):
         filepath = get_filepath_safe(
@@ -78,14 +75,11 @@ class FileStorageWithLocalGit(LocalGitRepository, FileStorage):
 
     def get_tracked_file_location(self, key):
         return get_filepath_safe(
-            os.path.join(self.root, 'tracked', 'local'),
-            '{}.json'.format(key),
+            os.path.join(self.root, 'tracked', 'local'), f'{key}.json'
         )
 
     def get_tracked_repositories(self):
-        for tup in super(FileStorageWithLocalGit, self).get_tracked_repositories():
-            yield tup
-
+        yield from super(FileStorageWithLocalGit, self).get_tracked_repositories()
         filepath = get_filepath_safe(
             os.path.join(self.root, 'tracked'),
             'local',

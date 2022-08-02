@@ -16,14 +16,11 @@ class TestInstallCron(object):
     @staticmethod
     def parse_args(rootdir, argument_string=''):
         with mock.patch(
-            'detect_secrets_server.core.usage.s3.should_enable_s3_options',
-            return_value=False,
-        ):
+                'detect_secrets_server.core.usage.s3.should_enable_s3_options',
+                return_value=False,
+            ):
             return ServerParserBuilder().parse_args(
-                'install cron --root-dir {} {}'.format(
-                    rootdir,
-                    argument_string,
-                ).split()
+                f'install cron --root-dir {rootdir} {argument_string}'.split()
             )
 
     def test_writes_crontab(self, mock_crontab, mock_rootdir, mock_metadata):
@@ -72,11 +69,11 @@ class TestInstallCron(object):
         ):
             install_mapper(args)
 
-        assert mock_crontab.content == (
-            '1 2 3 4 5    detect-secrets-server scan git@github.com:yelp/detect-secrets'
-            ' --root-dir {}'
-            ' --output-hook examples/standalone_hook.py'.format(mock_rootdir)
+        assert (
+            mock_crontab.content
+            == f'1 2 3 4 5    detect-secrets-server scan git@github.com:yelp/detect-secrets --root-dir {mock_rootdir} --output-hook examples/standalone_hook.py'
         )
+
         mock_crontab.write_to_user.assert_called_with(user=True)
 
     def test_does_not_override_existing_crontab(

@@ -88,22 +88,24 @@ class S3Storage(FileStorage):
             Prefix=filename,
         )
 
-        for obj in response.get('Contents', []):
-            if obj['Key'] == filename:
-                return bool(obj['Size'])
-
-        return False
+        return next(
+            (
+                bool(obj['Size'])
+                for obj in response.get('Contents', [])
+                if obj['Key'] == filename
+            ),
+            False,
+        )
 
     def _initialize_client(self):
-        boto3 = self._get_boto3()
-        if not boto3:
+        if boto3 := self._get_boto3():
+            self.client = boto3.client(
+                's3',
+                aws_access_key_id=self.access_key,
+                aws_secret_access_key=self.secret_access_key,
+            )
+        else:
             return
-
-        self.client = boto3.client(
-            's3',
-            aws_access_key_id=self.access_key,
-            aws_secret_access_key=self.secret_access_key,
-        )
 
     def _get_boto3(self):
         """Used for mocking purposes."""
@@ -114,10 +116,7 @@ class S3Storage(FileStorage):
         return boto3
 
     def get_s3_tracked_file_location(self, key):
-        return os.path.join(
-            self.prefix,
-            key + '.json'
-        )
+        return os.path.join(self.prefix, f'{key}.json')
 
 
 class S3StorageWithLocalGit(S3Storage, FileStorageWithLocalGit):

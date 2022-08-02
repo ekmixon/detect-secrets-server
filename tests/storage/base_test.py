@@ -14,10 +14,7 @@ from testing.mocks import SubprocessMock
 class TestBaseStorage(object):
 
     def test_setup_creates_directories(self, mock_rootdir, base_storage):
-        with assert_directories_created([
-            mock_rootdir,
-            mock_rootdir + '/repos'
-        ]):
+        with assert_directories_created([mock_rootdir, f'{mock_rootdir}/repos']):
             base_storage.setup('git@github.com:yelp/detect-secrets')
 
     @pytest.mark.parametrize(
@@ -98,14 +95,7 @@ class TestBaseStorage(object):
     @staticmethod
     def construct_subprocess_mock_git_clone(repo, mocked_output, mock_rootdir):
         return SubprocessMock(
-            expected_input=(
-                'git clone git@github.com:yelp/detect-secrets {} --bare'.format(
-                    '{}/repos/{}'.format(
-                        mock_rootdir,
-                        repo.hash_filename('yelp/detect-secrets'),
-                    ),
-                )
-            ),
+            expected_input=f"git clone git@github.com:yelp/detect-secrets {mock_rootdir}/repos/{repo.hash_filename('yelp/detect-secrets')} --bare",
             mocked_output=mocked_output,
             should_throw_exception=True,
         )

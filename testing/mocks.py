@@ -54,7 +54,7 @@ def mock_git_calls(*cases):
         if command != case.expected_input:
             # Pretty it up a little, for display
             if not case.expected_input.startswith('git'):
-                case.expected_input = 'git ' + case.expected_input
+                case.expected_input = f'git {case.expected_input}'
 
             raise AssertionError(
                 '\nExpected: "{}"\n'

@@ -160,8 +160,7 @@ class BaseTrackedRepo(object):
             return secrets
 
         if self.baseline_filename:
-            baseline = self.storage.get_baseline_file(self.baseline_filename)
-            if baseline:
+            if baseline := self.storage.get_baseline_file(self.baseline_filename):
                 baseline_collection = SecretsCollection.load_baseline_from_string(baseline)
                 secrets = get_secrets_not_in_baseline(secrets, baseline_collection)
 
@@ -184,13 +183,13 @@ class BaseTrackedRepo(object):
             self.storage.get_tracked_file_location(
                 self.storage.hash_filename(name),
             )
+        ) and (
+            override_level != OverrideLevel.NEVER
+            and override_level == OverrideLevel.ASK_USER
+            and not self._prompt_user_override()
+            or override_level == OverrideLevel.NEVER
         ):
-            if override_level == OverrideLevel.NEVER:
-                return False
-
-            elif override_level == OverrideLevel.ASK_USER:
-                if not self._prompt_user_override():
-                    return False
+            return False
 
         self.storage.put(
             self.storage.hash_filename(name),
@@ -203,20 +202,16 @@ class BaseTrackedRepo(object):
     def __dict__(self):
         """This is written to the filesystem, and used in load_from_file.
         Should contain all variables needed to initialize TrackedRepo."""
-        output = {
+        return {
             'repo': self.repo,
             'sha': self.last_commit_hash,
             'crontab': self.crontab,
-
             'baseline_filename': self.baseline_filename,
             'exclude_regex': self.exclude_regex,
-
             'plugins': self.plugin_config,
         }
 
-        return output
-
-    def _prompt_user_override(self):  # pragma: no cover
+    def _prompt_user_override(self):    # pragma: no cover
         """Prompts for user input to check if should override file.
 
         :rtype: bool
@@ -228,15 +223,11 @@ class BaseTrackedRepo(object):
         while override not in ['y', 'n']:
             override = str(
                 input(
-                    '"{}" repo already tracked! Do you want to override this (y|n)? '.format(
-                        self.name,
-                    )
+                    f'"{self.name}" repo already tracked! Do you want to override this (y|n)? '
                 )
             ).lower()
 
+
         sys.stdout = sys.__stdout__
 
-        if override == 'n':
-            return False
-
-        return True
+        return override != 'n'

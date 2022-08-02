@@ -29,7 +29,7 @@ def test_comment_with_secret(event, action):
     # We make sure to add "multiple words" here, since we want to make
     # sure that it supports multi-word bodies (as we would expect in
     # regular usage).
-    payload['comment']['body'] = 'multiple words {}'.format(EICAR)
+    payload['comment']['body'] = f'multiple words {EICAR}'
     payload['action'] = action
 
     assert scan_for_secrets(event, payload)
@@ -67,7 +67,7 @@ def test_comment_no_secret(event, action):
 )
 def test_comment_deleted(event):
     payload = get_payload(event)
-    payload['comment']['body'] = 'multiple words {}'.format(EICAR)
+    payload['comment']['body'] = f'multiple words {EICAR}'
     payload['action'] = 'deleted'
 
     assert not scan_for_secrets(event, payload)
@@ -91,7 +91,7 @@ def test_issue_success(event_key, action):
     event, key = event_key.split(',')
     payload = get_payload(event)
     payload['action'] = action
-    payload[key]['body'] = 'multiple words {}'.format(EICAR)
+    payload[key]['body'] = f'multiple words {EICAR}'
 
     assert scan_for_secrets(event, payload)
 
@@ -129,7 +129,7 @@ def test_issue_not_applicable(event_key):
     event, key = event_key.split(',')
     payload = get_payload(event)
     payload['action'] = 'deleted'
-    payload[key]['body'] = 'multiple words {}'.format(EICAR)
+    payload[key]['body'] = f'multiple words {EICAR}'
 
     assert not scan_for_secrets(event, payload)
 
@@ -151,10 +151,9 @@ def test_parameter_passing():
 
 def get_payload(name):
     filepath = os.path.join(
-        os.path.dirname(__file__),
-        '../../../testing/github/',
-        '{}.json'.format(name),
+        os.path.dirname(__file__), '../../../testing/github/', f'{name}.json'
     )
+
 
     with open(filepath) as f:
         return json.loads(f.read())

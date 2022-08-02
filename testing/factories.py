@@ -29,9 +29,7 @@ def metadata_factory(repo, json=False, **kwargs):
             "IbmCloudIamDetector": {},
             "IbmCosHmacDetector": {},
             "JwtTokenDetector": {},
-            "KeywordDetector": {
-                'keyword_exclude': None
-            },
+            "KeywordDetector": {'keyword_exclude': None},
             "MailchimpDetector": {},
             "PrivateKeyDetector": {},
             "SlackDetector": {},
@@ -41,25 +39,18 @@ def metadata_factory(repo, json=False, **kwargs):
         },
         "repo": repo,
         "sha": 'sha256-hash',
-    }
+    } | kwargs
 
-    output.update(kwargs)
-
-    if json:
-        return json_module.dumps(output, indent=2, sort_keys=True)
-    return output
+    return json_module.dumps(output, indent=2, sort_keys=True) if json else output
 
 
 def single_repo_config_factory(repo, **kwargs):
     """
     This generates a layout used in passing config files when initializing repos.
     """
-    output = {
+    return {
         'repo': repo,
-    }
-    output.update(kwargs)
-
-    return output
+    } | kwargs
 
 
 def potential_secret_factory(type_='type', filename='filename', lineno=1, secret='secret'):

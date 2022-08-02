@@ -45,17 +45,15 @@ class TestInitialize:
 
     def test_simple_success(self, mock_rootdir):
         with mock_repos_config({
-            'tracked': [
-                single_repo_config_factory(
-                    'git@github.com:yelp/detect-secrets',
-                ),
-            ]
-        }), mock_repo_class(
-            'BaseTrackedRepo'
-        ) as repo_class:
-            args = self.parse_args(
-                '--root-dir {}'.format(mock_rootdir)
-            )
+                'tracked': [
+                    single_repo_config_factory(
+                        'git@github.com:yelp/detect-secrets',
+                    ),
+                ]
+            }), mock_repo_class(
+                'BaseTrackedRepo'
+            ) as repo_class:
+            args = self.parse_args(f'--root-dir {mock_rootdir}')
             initialize(args)
 
             kwargs = repo_class.call_args[1]
@@ -107,38 +105,37 @@ class TestInitialize:
 
     def test_repo_config_overrides_defaults(self, mock_rootdir):
         with mock_repos_config({
-            'tracked': [
-                single_repo_config_factory(
-                    'git@github.com:yelp/detect-secrets',
-                    plugins={
-                        # This checks that CLI overrides config file
-                        'HexHighEntropyString': {
-                            'hex_limit': 5,
+                'tracked': [
+                    single_repo_config_factory(
+                        'git@github.com:yelp/detect-secrets',
+                        plugins={
+                            # This checks that CLI overrides config file
+                            'HexHighEntropyString': {
+                                'hex_limit': 5,
+                            },
+
+                            # This checks it overrides default values
+                            'Base64HighEntropyString': {
+                                'base64_limit': 2,
+                            },
+
+                            # This checks for disabling functionality
+                            'PrivateKeyDetector': False,
                         },
 
-                        # This checks it overrides default values
-                        'Base64HighEntropyString': {
-                            'base64_limit': 2,
-                        },
+                        # This checks it overrides CLI (non-plugin)
+                        baseline_filename='will_be_overriden',
 
-                        # This checks for disabling functionality
-                        'PrivateKeyDetector': False,
-                    },
-
-                    # This checks it overrides CLI (non-plugin)
-                    baseline_filename='will_be_overriden',
-
-                    # This checks it overrides default value (non-plugin)
-                    exclude_regex='something_here',
-                    crontab='* * 4 * *',
-                )
-            ],
-        }):
+                        # This checks it overrides default value (non-plugin)
+                        exclude_regex='something_here',
+                        crontab='* * 4 * *',
+                    )
+                ],
+            }):
             args = self.parse_args(
-                '--hex-limit 4 '
-                '--baseline baseline.file '
-                '--root-dir {}'.format(mock_rootdir)
+                f'--hex-limit 4 --baseline baseline.file --root-dir {mock_rootdir}'
             )
+
 
         with mock_repo_class('BaseTrackedRepo') as repo_class:
             initialize(args)
@@ -197,23 +194,20 @@ class TestAddRepo:
 
     def add_non_local_repo(self, mock_rootdir):
         repo = 'git@github.com:yelp/detect-secrets'
-        directory = '{}/repos/{}'.format(
-            mock_rootdir,
-            BaseStorage.hash_filename('yelp/detect-secrets'),
-        )
+        directory = f"{mock_rootdir}/repos/{BaseStorage.hash_filename('yelp/detect-secrets')}"
+
 
         git_calls = [
-            SubprocessMock(
-                expected_input='git clone {} {} --bare'.format(repo, directory),
-            ),
+            SubprocessMock(expected_input=f'git clone {repo} {directory} --bare'),
             SubprocessMock(
                 expected_input='git rev-parse HEAD',
                 mocked_output='mocked_sha',
             ),
         ]
 
+
         with mock_git_calls(*git_calls):
-            args = self.parse_args('add {} --root-dir {}'.format(repo, mock_rootdir))
+            args = self.parse_args(f'add {repo} --root-dir {mock_rootdir}')
             add_repo(args)
 
     def test_add_local_repo(self, mock_file_operations, mock_rootdir):
@@ -230,11 +224,9 @@ class TestAddRepo:
 
         with mock_git_calls(*git_calls):
             args = self.parse_args(
-                'add {} --baseline .secrets.baseline --local --root-dir {}'.format(
-                    repo,
-                    mock_rootdir,
-                )
+                f'add {repo} --baseline .secrets.baseline --local --root-dir {mock_rootdir}'
             )
+
 
             add_repo(args)
 
@@ -254,13 +246,10 @@ class TestAddRepo:
 
     def test_add_s3_backend_repo(self, mock_file_operations, mocked_boto):
         args = self.parse_args(
-            'add {} '
-            '--local '
-            '--storage s3 '
-            '--s3-credentials-file examples/aws_credentials.json '
-            '--s3-bucket pail'.format('examples'),
+            'add examples --local --storage s3 --s3-credentials-file examples/aws_credentials.json --s3-bucket pail',
             has_s3=True,
         )
+
 
         git_calls = [
             # repo.update
@@ -296,7 +285,5 @@ def mock_repo_class(classname):
     """
     :type classname: str
     """
-    with mock.patch(
-        'detect_secrets_server.repos.factory.{}'.format(classname),
-    ) as repo_class:
+    with mock.patch(f'detect_secrets_server.repos.factory.{classname}') as repo_class:
         yield repo_class

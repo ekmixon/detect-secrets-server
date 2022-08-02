@@ -31,7 +31,7 @@ class TestOutputOptions(UsageTest):
     )
     def test_invalid_output_hook(self, hook_input):
         with pytest.raises(SystemExit):
-            self.parse_args('scan --output-hook {} examples -L'.format(hook_input))
+            self.parse_args(f'scan --output-hook {hook_input} examples -L')
 
     def test_valid_external_hook(self):
         args = self.parse_args(

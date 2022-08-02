@@ -73,22 +73,19 @@ def _is_valid_output_hook(hook):
 
     is_valid_file(
         hook,
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             output-hook must be one of the following values:
             {}
             or a valid executable filename.
 
             "{}" does not qualify.
-        """)[:-1].format(
-            '\n'.join(
-                map(
-                    lambda x: '  - {}'.format(x.display_name),
-                    ALL_HOOKS,
-                )
-            ),
-            hook,
+        """
+        )[:-1].format(
+            '\n'.join(map(lambda x: f'  - {x.display_name}', ALL_HOOKS)), hook
         ),
     )
+
 
     return hook
 
@@ -101,27 +98,21 @@ def _initialize_output_hook_and_raw_command(hook_name, config_filename):
         output_hook_command is how to call the output-hook as CLI args.
     """
     hook_found = None
-    command = '--output-hook {}'.format(hook_name)
+    command = f'--output-hook {hook_name}'
 
     for hook in ALL_HOOKS:
         if hook_name == hook.display_name:
             hook_found = hook
             break
     else:
-        if hook_name:
-            return ExternalHook(hook_name), command
-
-        return StdoutHook(), ''
-
+        return (ExternalHook(hook_name), command) if hook_name else (StdoutHook(), '')
     if hook_found.config_setting == HookDescriptor.CONFIG_REQUIRED and \
             not config_filename:
         # We want to display this error, as if it was during argument validation.
         raise argparse.ArgumentTypeError(
-            '{} hook requires a config file. '
-            'Pass one in through --output-config.'.format(
-                hook_found.display_name,
-            )
+            f'{hook_found.display_name} hook requires a config file. Pass one in through --output-config.'
         )
+
 
     # These values are not user injectable, so it should be ok.
     try:
@@ -133,6 +124,6 @@ def _initialize_output_hook_and_raw_command(hook_name, config_filename):
     if hook_found.config_setting == HookDescriptor.CONFIG_NOT_SUPPORTED:
         return hook_class(), command
 
-    command += ' --output-config {}'.format(config_filename)
+    command += f' --output-config {config_filename}'
     with open(config_filename) as f:
         return hook_class(f.read()), command

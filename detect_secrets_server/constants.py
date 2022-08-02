@@ -4,31 +4,29 @@
 #       and look for "ASCII text", but that might be more expensive.
 #
 #       Definitely something to look into, if this list gets unruly long.
-IGNORED_FILE_EXTENSIONS = set(
-    (
-        '.' + extension
-        for extension in (
-            '7z',
-            'bmp',
-            'bz2',
-            'dmg',
-            'exe',
-            'gif',
-            'gz',
-            'ico',
-            'jar',
-            'jpg',
-            'jpeg',
-            'png',
-            'rar',
-            'realm',
-            's7z',
-            'svg',
-            'tar',
-            'tif',
-            'tiff',
-            'webp',
-            'zip',
-        )
+IGNORED_FILE_EXTENSIONS = {
+    f'.{extension}'
+    for extension in (
+        '7z',
+        'bmp',
+        'bz2',
+        'dmg',
+        'exe',
+        'gif',
+        'gz',
+        'ico',
+        'jar',
+        'jpg',
+        'jpeg',
+        'png',
+        'rar',
+        'realm',
+        's7z',
+        'svg',
+        'tar',
+        'tif',
+        'tiff',
+        'webp',
+        'zip',
     )
-)
+}
